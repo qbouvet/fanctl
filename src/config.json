@@ -1,0 +1,74 @@
+{
+    "parameter": {
+        "SAMPLEPERIOD": 500
+    },
+    "defaults": {
+        "HYSTERESIS": 2500
+    },
+    "sensors": [
+        {   "id": "cpuT", 
+            "file": "/sys/devices/pci0000:00/0000:00:18.3/hwmon/hwmon0/temp1_input", 
+            "unit": "m°C"
+        },
+        {   "id": "cpuP", 
+            "cmds": [   ["s-tui","-t"],
+                        ["sed", "s|.*Util: Avg: \\([0-9.]*\\).*|\\1|"]
+            ], 
+            "unit": "W"
+        },
+        {   "id": "cpuPWM", 
+            "file": "/sys/devices/pci0000:00/0000:00:18.3/hwmon/hwmon0/pwm2", 
+            "unit": "natural"
+        },
+        {   "id": "gpuT", 
+            "cmds": [["nvidia-smi", "--format=csv,noheader,nounits", "--query-gpu=temperature.gpu"]], 
+            "unit": "°C"
+        },
+        {   "id": "gpuP", 
+            "cmds": [["nvidia-smi", "--format=csv,noheader,nounits", "--query-gpu=power.draw"]], 
+            "unit": "W"
+        },
+        {   "id": "gpuPWM", 
+            "file": "/sys/devices/pci0000:00/0000:00:18.3/hwmon/hwmon0/pwm1", 
+            "unit": "natural"
+        }
+    ],
+    "actuationCurves": [
+        {   "id": "curve#1",
+            "kind": "linear",
+            "in_min": "55",
+            "in_max": "75",
+            "out_min": "30",
+            "out_max": "255"
+        }
+    ],
+    "actuators": [
+        {   "id": "cpuPWM",
+            "file": "",
+            "min": 50, 
+            "max": 255,
+            "step": 1,
+            "step_rate": 20
+        },
+        {   "id": "gpuPWM",
+            "min": 50, 
+            "max": 255,
+            "step": 1,
+            "step_rate": 20
+        }
+    ],
+    "controlLoops": [
+        {   "id": "cpuLOOP",
+            "temperature": "cpuT",
+            "power": "cpuP",
+            "curve": "curve#1",
+            "actuator": "cpuPWM"
+        },
+        {   "id": "gpuLOOP",
+            "temperature": "gpuT",
+            "power": "gpuP",
+            "curve": "curve#1",
+            "actuator": "gpuPWM"
+        }
+    ]
+}

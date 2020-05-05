@@ -1,0 +1,28 @@
+{
+    "editor.minimap.enabled": false, 
+    "editor.wordWrap": "wordWrapColumn",
+    "editor.wordWrapColumn": 80,
+    "editor.wrappingIndent": "same",
+    
+    "latex-workshop.progress.runIconType":"Full Stop",
+    "latex-workshop.latex.autoBuild.interval":1500,
+    "latex-workshop.latex.recipe.default": "first", 
+    "latex-workshop.latex.recipes": [
+        {
+            "name":  "make",
+            "tools": ["make"]
+        }
+    ],
+    "latex-workshop.latex.tools": [
+        {
+            "name":    "make",
+            "command": "make",
+            "args": ["quick"],
+            "env": {}
+        },
+        {
+            "name":    "nothing",
+            "command": ":"
+        }
+    ],
+}

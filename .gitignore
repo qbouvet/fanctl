@@ -1,0 +1,11 @@
+
+# Go Dependancies
+pkg
+src/github.com
+
+# Compiled files
+bin
+
+# Compilation files
+doc/.build
+

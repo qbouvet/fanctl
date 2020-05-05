@@ -1,0 +1,24 @@
+package sensor
+
+
+type AffineTransformOldSensor struct {
+	id   string 
+	s 	 OldSensor
+	mult float32
+	ofst float32
+}
+
+
+func AffineTransform(id string, s OldSensor, mult, ofst float32) OldSensor {
+	return &AffineTransformOldSensor{id, s, mult, ofst}
+}
+
+
+func (S *AffineTransformOldSensor) Id() string {
+	return S.id
+}
+
+
+func (S *AffineTransformOldSensor) Sample() float32 {
+	return S.s.Sample() * S.mult + S.ofst
+}
