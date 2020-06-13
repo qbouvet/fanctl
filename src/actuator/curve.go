@@ -1,14 +1,12 @@
-package curve
+package actuator
 
 import "fmt"
-
 
 
 type Curve interface {
 	Lookup(int) int
 	MapY(int, int, int, int) Curve
 }
-
 
 
 /*
@@ -34,8 +32,6 @@ func (C *ClampedLinearCurve) Lookup(x int) int {
 		return C.y2
 	}
 	return C.y1 + (C.y2-C.y1) * (x-C.x1) / (C.x2-C.x1)
-	//completion := (x-C.x1)/(C.x2-C.x1)
-	//return C.y2*completion + C.y1*(1-completion)
 }
 
  //	Actuators transform the existing curve to directly fit to their min/max

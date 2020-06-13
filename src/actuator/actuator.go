@@ -2,44 +2,47 @@ package actuator
 
 import "fmt"
 import "math"
-import "strconv"
-import "io/ioutil"
 import "time"
 
 import "sensor"
-import "curve"
+import "actuator/writer"
 
+
+/*		Actuator:
+ *		- Determines the appropriate amount of actuation depending on  
+ *		  sampled values
+ *		- Smoothes out applies the changes over time
+ */
 
 
 type Actuator struct {
 	id 				string
 
-	actuationCurve	curve.Curve
+	actuationCurve	Curve
 	min, max 		int 
 
 	sample_period	int // ms
 	step_size		int	// step size
 	max_step_rate	int	// steps.s⁻¹
 
-	path 			string
+	writer 			*writer.Writer
 	feedback 		*sensor.Sensor
 }
 
-func New(id string, c curve.Curve, 
-		 min, max int, 
+func New(id string, c Curve, min, max int, 
 		 samplePeriod, stepSize, maxStepRate int, 
 		 path string, feedback *sensor.Sensor) *Actuator {
 	if feedback.Unit() != sensor.Natural {
 		panic("Invalid argument")
 	}
-	return 	&Actuator{
+	A := &Actuator{
 		id: id, 
-		actuationCurve: c.MapY(0, 100, min, max),
-		min: min, max: max, 
-		sample_period: samplePeriod,
+		actuationCurve: c.MapY(0, 100, min, max), min: min, max: max, 
+		sample_period: samplePeriod, 
 		step_size: stepSize, max_step_rate: maxStepRate, 
-		path: path, feedback: feedback,
+		writer: writer.LinuxPwmWriter(path), feedback: feedback,
 	}
+	return A
 } 
 
 func (A *Actuator) Actuate(temperature int) {
@@ -86,10 +89,5 @@ func (A *Actuator) Write(value int) {
 	if value <A.min {
 		_value = A.min
 	}
-	valuestr := strconv.Itoa(_value)
-	fmt.Printf("%s writing %s\n", A.id, valuestr)
-	err := ioutil.WriteFile(A.path, []byte(valuestr), 0644)
-	if err !=nil {
-		panic("Write error: "+err.Error())
-	}
+	A.writer.Write(_value)
 }

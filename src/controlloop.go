@@ -1,4 +1,4 @@
-package loop
+package main
 
 import "fmt"
 
@@ -22,7 +22,7 @@ type ControlLoop struct {
 	hystT 	int	
 }
 
-func New(id string, srcT, srcP *sensor.Sensor, a *actuator.Actuator, hysteresis  int) *ControlLoop{
+func NewControlLoop(id string, srcT, srcP *sensor.Sensor, a *actuator.Actuator, hysteresis  int) *ControlLoop{
 	if srcT.Unit() != sensor.MilliCelsius {
 		panic("Invalid argument")
 	}

@@ -1,4 +1,7 @@
 {
+    "comment" : "The tool doesn't support config files for now. Configure manually in main.go",
+
+    
     "parameter": {
         "SAMPLEPERIOD": 500
     },

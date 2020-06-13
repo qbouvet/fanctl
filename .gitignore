@@ -7,5 +7,6 @@ src/github.com
 bin
 
 # Compilation files
-doc/.build
+.build
+doc/.build/
 

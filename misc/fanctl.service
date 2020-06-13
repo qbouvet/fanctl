@@ -1,0 +1,17 @@
+# /etc/systemd/system/fanctl.service
+
+[Unit]
+Description=fanctl at boot.
+
+[Service]
+Type=simple
+User=root
+Group=root
+ExecStart=/opt/fanctl/main
+Restart=always
+RestartSec=2000ms
+
+[Install]
+WantedBy=multi-user.target
+
+# https://www.freedesktop.org/software/systemd/man/systemd.service.html

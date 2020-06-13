@@ -5,9 +5,7 @@ import "time"
 
 import "sensor"
 import "sensor/reader"
-import "curve"
 import "actuator"
-import "loop"
 
 
 
@@ -18,9 +16,9 @@ const (
 
 var (
 	sensors		= make(map[string]*sensor.Sensor)
-	curves 		= make(map[string]curve.Curve)
+	curves 		= make(map[string]actuator.Curve)
 	actuators 	= make(map[string]*actuator.Actuator)
-	ctrlLoops	= make(map[string]*loop.ControlLoop)
+	ctrlLoops	= make(map[string]*ControlLoop)
 )
 
 
@@ -31,7 +29,7 @@ func main() {
 	for {
 		log("+iteration+")
 		for _,l := range ctrlLoops {
-			log("+loop iteration+")
+			log("+control loop iteration+")
 			l.Loop()
 			time.Sleep(time.Millisecond*50)	
 			log()
@@ -46,7 +44,7 @@ func main() {
 func initialize() {
 	log("Init")
 
-	globalCurve := curve.ClampedLinear(50000, 30, 70000, 100)
+	globalCurve := actuator.ClampedLinear(50000, 30, 70000, 100)
 
 	curves["global"] = globalCurve
 
@@ -108,7 +106,7 @@ func initialize() {
 		"cpuA",
 		curves["global"],
 		0, 255, 				// Full range here
-		SAMPLEPERIOD, 2, 8,	// Max speed in 10s
+		SAMPLEPERIOD, 2, 8,		// Max speed in 10s
 		"/sys/devices/platform/nct6775.656/hwmon/hwmon2/pwm2", 
 		sensors["cpuPWM"],
 	)
@@ -125,128 +123,21 @@ func initialize() {
 	actuators["cpuA"] = cpuA
 	actuators["gpuA"] = gpuA
 
-	cpuL := loop.New("cpuL", cpuT, cpuP, cpuA, HYSTERESIS)
-	gpuL := loop.New("gpuL", gpuT, gpuP, gpuA, HYSTERESIS)
+	cpuL := NewControlLoop("cpuL", cpuT, cpuP, cpuA, HYSTERESIS)
+	gpuL := NewControlLoop("gpuL", gpuT, gpuP, gpuA, HYSTERESIS)
 
 	ctrlLoops["cpuL"] = cpuL
 	ctrlLoops["gpuL"] = gpuL
 
-	// Initialize everything to 0 to force refresh at first iteration
-	// predictedTemperatures  = []float32{0,0}
-	// predictedTemperatures  = []float32{0,0}
-	// hysteresisTemperatures = []float32{0,0}
-	// currentActuations      = []float32{0,0}
-	// nextActuations         = []float32{0,0}
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/* 
-// 	Sample data from sensors
-func sample() {
-	log("Sample")
-	l.Indent()
-
-	sampledTemperatures = []float32{
-		sensors[0].Sample(),
-		sensors[1].Sample(),
-	}
-
-	sampledPowers =	 []float32{
-		sensors[2].Sample(),
-		sensors[3].Sample(),
-	}
-	
-	l.UnIndent() 
+func log(s ...interface{}) {
+	fmt.Println(s...)
 }
 
-
-// 	Predict temperature for the next loop
-func predict() {
-	log("Predict")
-	l.Indent()
-
-	predictedTemperatures = make([]float32, len(sampledTemperatures))
-	copy(predictedTemperatures, sampledTemperatures)
-
-	l.UnIndent() 
+func logf(f string, a ...interface{}) {
+	fmt.Printf(f, a...)
 }
-
-
-//	Compute values for the actuators
-func compute() {
-	log("Compute")
-	l.Indent()
-
-	// Selectively update temperatures if HYSTERESIS is crossed
-	for i,t := range predictedTemperatures {
-		if t<=hysteresisTemperatures[i] && t>=hysteresisTemperatures[i]-HYSTERESIS {
-			continue
-		}
-		nextActuations[i] = fancurves[i].Query(t)
-		hysteresisTemperatures[i] = t
-	}
-
-	l.UnIndent() 
-}
-
-
-// 	Apply the computed values to the actuators
-func apply() {
-	log("Apply")
-	l.Indent()
-
-	for i,a := range actuators {
-		if nextActuations[i] == currentActuations[i] {
-			continue
-		}
-		actuationStepRange  := float32(math.Abs(float64(nextActuations[i]-currentActuations[i])))
-		logf("Need to cover an actuation range of %f\n", actuationStepRange)
-		actuationStepSign   := int((nextActuations[i]-currentActuations[i])/actuationStepRange)
-		logf("Steps sign: %d\n", actuationStepSign)
-		actuationStepsCount := actuationStepRange / fan_step
-		logf("Requires %f steps of size %f\n", actuationStepsCount, fan_step)
-		if actuationStepsCount > steps_per_period {
-			actuationStepsCount = steps_per_period
-			logf("WARNING: can't cover step range (%f) with given step size (%d), steps per sample period (%d), and sample period time duration (%d)\n", 
-				float32(actuationStepSign) * actuationStepRange, fan_step, steps_per_period, SAMPLEPERIOD)
-		}
-		actuationPeriod   := float32(SAMPLEPERIOD/actuationStepsCount)
-		actuationStepSize := actuationStepSign * fan_step
-		logf("Will carry out steps of %f at interval of %s\n", actuationStepSize, actuationPeriod)
-		actuationHandler  := func (actuator actuator.Actuator, currentActuation float32, actuationStepSize float32, actuationPeriod float32, until time.Time) {
-			for time.Now().Before(until) {
-				currentActuation := currentActuation + actuationStepSize
-				actuator.Set(currentActuation)
-				time.Sleep(time.Duration(int64(time.Millisecond)* int64(math.Ceil(float64(actuationPeriod)))))
-			}
-		}
-		logf("Carrying out %f actuation steps of size %d \n", actuationStepsCount, actuationStepSize)
-		go actuationHandler(a, currentActuations[i], float32(actuationStepSize), actuationPeriod, 
-			time.Now().Add(time.Duration(int64(time.Millisecond)*int64(SAMPLEPERIOD))))
-		currentActuations[i] = currentActuations[i] + float32(actuationStepSize)*actuationStepsCount
-	}
-
-	l.UnIndent() 
-}
- */
-
-
-
-
 
 /* func pprint() {
 	fmt.Printf("\n")
@@ -282,11 +173,3 @@ func apply() {
 	}
 	fmt.Printf("\n\n")
 } */
-
-func log(s ...interface{}) {
-	fmt.Println(s...)
-}
-
-func logf(f string, a ...interface{}) {
-	fmt.Printf(f, a...)
-}
