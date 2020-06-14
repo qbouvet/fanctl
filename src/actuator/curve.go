@@ -1,6 +1,6 @@
 package actuator
 
-import "fmt"
+import "logging"
 
 
 type Curve interface {
@@ -38,7 +38,7 @@ func (C *ClampedLinearCurve) Lookup(x int) int {
 func (C *ClampedLinearCurve) MapY(min, max, newmin, newmax int) Curve {
 	newy1 := newmin + C.y1 * (newmax-newmin) / (max-min)
 	newy2 := newmin + C.y2 * (newmax-newmin) / (max-min)
-	fmt.Printf("Remapped y1=%d->%d, y2=%d->%d ([%d-%d]->[%d-%d])\n", 
+	logging.Info("Remapped y1=%d->%d, y2=%d->%d ([%d-%d]->[%d-%d])\n", 
 		C.y1, newy1, C.y2, newy2, min, max, newmin, newmax,
 	)
 	return &ClampedLinearCurve {C.x1, newy1, C.x2, newy2}

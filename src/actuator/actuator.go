@@ -1,17 +1,16 @@
 package actuator
 
-import "fmt"
 import "math"
 import "time"
 
+import "logging"
 import "sensor"
 import "actuator/writer"
-
 
 /*		Actuator:
  *		- Determines the appropriate amount of actuation depending on  
  *		  sampled values
- *		- Smoothes out applies the changes over time
+ *		- Smoothes change / applies change over time
  */
 
 
@@ -51,7 +50,7 @@ func (A *Actuator) Actuate(temperature int) {
 	current 	:= A.feedback.Sample()
 	delta 		:= int(math.Abs(float64(target-current)))
 	deltaSign	:= int(float64(target-current)/math.Abs(float64(target-current)))
-	fmt.Printf("%s going from %d to %d: delta=%d sign=%d\n", A.id, current, target, delta, deltaSign)
+	logging.Info("  %s applies change from %d to %d: delta=%d sign=%d\n", A.id, current, target, delta, deltaSign)
 
 	req_nb_steps		:= (delta / A.step_size)				  // #steps
 	req_step_rate 		:=1000 * req_nb_steps / A.sample_period  // #steps.s⁻¹
@@ -61,13 +60,13 @@ func (A *Actuator) Actuate(temperature int) {
 	if achieved_step_rate ==0 {
 		achieved_step_rate = 1
 	}
-	fmt.Printf("%s achieved step rate of %d steps.s⁻¹\n", 
+	logging.Info("  %s achieved step rate of %d steps.s⁻¹\n", 
 		A.id, achieved_step_rate, 
 	)
 
 	achieved_step_period := 1000 / achieved_step_rate		// ms
 	until := time.Now().Add(time.Millisecond*time.Duration(A.sample_period))
-	fmt.Printf("%a equivalent to 1 step of %d every %d ms\n", 
+	logging.Info("  %s equivalent to 1 step of %d every %d ms\n", 
 		A.id, A.step_size, achieved_step_period,
 	)
 

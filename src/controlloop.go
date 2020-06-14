@@ -1,7 +1,6 @@
 package main
 
-import "fmt"
-
+import "logging"
 import "sensor"
 import "actuator"
 
@@ -42,13 +41,13 @@ func (L *ControlLoop) Id() string {
 func (L *ControlLoop) Loop() {
 	// Sample Phase
 	sampledT := L.sourceT.Sample()
-	fmt.Printf("%s sampled °C: %d\n", L.id, sampledT)
+	logging.Info("%s sampled °C: %d\n", L.id, sampledT)
 	//sampledP := L.sourceP.Sample()
 	// Prediction Phase
 	predT := sampledT
 	// Actuation Phase
 	if predT <= L.hystT && predT >= L.hystT-L.hysteresis {
-		fmt.Printf("Hysteresis not crossed, skipping actuation\n")
+		logging.Debug("Hysteresis not crossed, skipping actuation\n")
 		return 
 	}
 	L.hystT = sampledT

@@ -1,20 +1,20 @@
 package main
 
-import "fmt"
 import "time"
+import "flag"
+import "os"
 
+import "logging"
 import "sensor"
-import "sensor/reader"
 import "actuator"
 
 
-
-const (
-	SAMPLEPERIOD 	= 1500	// ms	Main loop period
-	HYSTERESIS 		= 2000	// m°C	Skip downward changes smaller than this
-)
-
 var (
+	// Parameters
+	loglevel    = 15
+	samplep     = 1500
+	hysteresis  = 2000
+	// Runtime data structures
 	sensors		= make(map[string]*sensor.Sensor)
 	curves 		= make(map[string]actuator.Curve)
 	actuators 	= make(map[string]*actuator.Actuator)
@@ -22,121 +22,35 @@ var (
 )
 
 
-
 func main() {
-	initialize()
-	//pprint()
+
+	flag.IntVar(&loglevel, 	 "loglevel", 3, "Bitmask - Warn:1, Info:2, Trace:4, Debug:8")
+	flag.IntVar(&samplep,	 "samplep",  1500, "Sample period in ms")
+	flag.IntVar(&hysteresis, "hyst", 	 2000, "hysteresis in milliCelsius")
+	flag.Parse()
+
+	logging.Initialize(loglevel, os.Stderr, os.Stdout)
+	logging.Info("Running with parameters:\n")
+	logging.Info("loglevel    %d", loglevel)
+	logging.Info("samplep     %d", samplep)
+	logging.Info("hysteresis  %d", hysteresis)
+
+	loadConfigurationInto(sensors, curves, actuators, ctrlLoops)
+	
 	for {
-		log("+iteration+")
+		logging.Trace("+iteration+")
 		for _,l := range ctrlLoops {
-			log("+control loop iteration+")
+			logging.Trace("  +control loop iteration+")
 			l.Loop()
 			time.Sleep(time.Millisecond*50)	
-			log()
 		}
-		time.Sleep(time.Millisecond*SAMPLEPERIOD)	
-		//pprint()
+		logging.Trace("")
+		time.Sleep(time.Millisecond*time.Duration(samplep))
 	}
 }
 
-
-
-func initialize() {
-	log("Init")
-
-	globalCurve := actuator.ClampedLinear(50000, 30, 70000, 100)
-
-	curves["global"] = globalCurve
-
-	cpuT := sensor.New(
-		"cpuT", 
-		//reader.FromFile("/sys/devices/pci0000:00/0000:00:18.3/hwmon/hwmon0/temp1_input"),
-		reader.FromFile("/sys/class/hwmon/hwmon0/device/hwmon/hwmon0/temp1_input"),
-		sensor.MilliCelsius,
-	)
-	
-	// 	CPU Should draw ~90 watts under load at stock, ~150W overclocked
-	//	https://bit-tech.net/reviews/tech/amd-ryzen-5-1600-review/6/
-	// 	For idle, a wild guess would be 10-15W ? 
-	// 	So, Draw[W] = 15[W] + (90[W]-15[W])*utilization[%]
-	cpuP := sensor.New(
-		"cpuP", 
-		reader.FromCmd(
-			reader.NewCmdLine("s-tui", "-t"),
-			reader.NewCmdLine("sed", "s|.*Util: Avg: \\([0-9.]*\\).*|\\1|"),
-		), 
-		sensor.Watt, 
-		75, 100, 15000,
-	)
-
-	cpuPWM := sensor.New(
-		"cpuPWM", 
-		//reader.FromFile("/sys/devices/pci0000:00/0000:00:18.3/hwmon/hwmon0/pwm2"),
-		reader.FromFile("/sys/devices/platform/nct6775.656/hwmon/hwmon2/pwm2"),
-		sensor.Natural,
-	)
-
-	gpuT := sensor.New(
-		"gpuT", 
-		reader.FromCmd(reader.NewCmdLine("nvidia-smi", "--format=csv,noheader", "--query-gpu=temperature.gpu")),
-		sensor.Celsius,
-	)
-
-	gpuP := sensor.New(
-		"gpuP", 
-		reader.FromCmd(reader.NewCmdLine("nvidia-smi", "--format=csv,noheader,nounits", "--query-gpu=power.draw")), 
-		sensor.Watt,
-	)
-
-	gpuPWM := sensor.New(
-		"gpuPWM", 
-		//reader.FromFile("/sys/devices/pci0000:00/0000:00:18.3/hwmon/hwmon0/pwm1"),
-		reader.FromFile("/sys/devices/platform/nct6775.656/hwmon/hwmon2/pwm1"),
-		sensor.Natural,
-	)
-
-	sensors["cpuT"]=cpuT
-	sensors["cpuP"]=cpuP
-	sensors["cpuPWM"]=cpuPWM
-	sensors["gpuT"]=gpuT
-	sensors["gpuP"]=gpuP
-	sensors["gpuPWM"]=gpuPWM
-
-	cpuA := actuator.New(
-		"cpuA",
-		curves["global"],
-		0, 255, 				// Full range here
-		SAMPLEPERIOD, 2, 8,		// Max speed in 10s
-		"/sys/devices/platform/nct6775.656/hwmon/hwmon2/pwm2", 
-		sensors["cpuPWM"],
-	)
-
-	gpuA := actuator.New(
-		"gpuA",
-		curves["global"],
-		0, 255, 				// Full range here
-		SAMPLEPERIOD, 2, 6, 	// Max speed in 10s
-		"/sys/devices/platform/nct6775.656/hwmon/hwmon2/pwm3", 
-		sensors["gpuPWM"],
-	)
-
-	actuators["cpuA"] = cpuA
-	actuators["gpuA"] = gpuA
-
-	cpuL := NewControlLoop("cpuL", cpuT, cpuP, cpuA, HYSTERESIS)
-	gpuL := NewControlLoop("gpuL", gpuT, gpuP, gpuA, HYSTERESIS)
-
-	ctrlLoops["cpuL"] = cpuL
-	ctrlLoops["gpuL"] = gpuL
-
-}
-
-func log(s ...interface{}) {
-	fmt.Println(s...)
-}
-
-func logf(f string, a ...interface{}) {
-	fmt.Printf(f, a...)
+func pprintState () {
+	logging.Warn("Not implemented")
 }
 
 /* func pprint() {
@@ -157,7 +71,7 @@ func logf(f string, a ...interface{}) {
 		fmt.Printf(" %8.3f |", t)
 	}
 	fmt.Printf("          |          |")
-	fmt.Printf("\n%18s |", "Hysteresis")
+	fmt.Printf("\n%18s |", "hysteresis")
 	for _,t := range hysteresisTemperatures {
 		fmt.Printf(" %8.3f |", t)
 	}

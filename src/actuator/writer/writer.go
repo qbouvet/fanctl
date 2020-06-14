@@ -1,9 +1,9 @@
 package writer
 
-import "fmt"
 import "strconv"
 import "io/ioutil"
 
+import "logging"
 
 /*		Writer is analogous to Reader: 
  *		- Convert our standard units to those of the actual sink (nothing to 
@@ -35,7 +35,7 @@ func (W *Writer) Write (value int) {
 	if err !=nil {
 		panic("Write error: Could not enable Linux PWM Writer: "+err.Error())
 	}
-	fmt.Printf("Writing %s <- %s\n", W.path, valuestr)
+	logging.Debug("Writing %s <- %s\n", W.path, valuestr)
 	err = ioutil.WriteFile(W.path, []byte(valuestr), 0644)
 	if err !=nil {
 		panic("Write error: "+err.Error())

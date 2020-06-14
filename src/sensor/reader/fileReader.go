@@ -1,6 +1,5 @@
 package reader
 
-import "fmt"
 import "io/ioutil"
 import "strconv"
 
@@ -23,7 +22,6 @@ func (R *FileReader) Read() float64 {
 	}
 	res, err := strconv.ParseFloat(string(out), 64)
 	if err != nil {
-		fmt.Println(err)
 		panic("Convertion error on "+string(out)+": "+err.Error())
 	}	
 	return res

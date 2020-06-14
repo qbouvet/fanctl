@@ -1,10 +1,11 @@
 package reader
 
-//import "fmt"
 import "os/exec"
 import "io"
 import "bytes"
 import "strconv"
+
+import "logging"
 
 
 /*
@@ -54,7 +55,7 @@ func (R *CmdReader) Read () float64 {
 	var out []byte
 	if len(R.CmdStrs) ==1 {
 	// Simple case with single command
-		//fmt.Printf("Executing: %v\n", R.CmdStrs[0])
+		logging.Debug("Executing: %v\n", R.CmdStrs[0])
 		_out, err := R.CmdStrs[0].ToExec().CombinedOutput() 
 		if err !=nil {
 			panic("exec error: "+err.Error())
@@ -84,12 +85,12 @@ func (R *CmdReader) Read () float64 {
 			R.running[i].Wait()
 		 	if i > 0 {						
 				// Close stdin (pipe) unless first command
-				//fmt.Printf("Closing stdin of piped command %d\n", i) 
+				logging.Debug("Closing stdin of piped command %d\n", i) 
 				R.running[i].Stdin.(*io.PipeReader).Close()		
 		 	}
 			if i < len(R.running)-1 { 
 				// Close stdout (pipe) unless last command
-				//fmt.Printf("Closing stdout of piped command %d\n", i) 
+				logging.Debug("Closing stdout of piped command %d\n", i) 
 		 		R.running[i].Stdout.(*io.PipeWriter).Close()	
 		 	}
 		}

@@ -7,7 +7,7 @@ Description=fanctl at boot.
 Type=simple
 User=root
 Group=root
-ExecStart=/opt/fanctl/main
+ExecStart=/opt/fanctl/main -loglevel 1
 Restart=always
 RestartSec=2000ms
 
