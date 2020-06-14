@@ -1,8 +1,6 @@
 Todo
 ====  
 
-  Exit if program is not run as root
-
   Evaluation: separate program to monitor/log/graph fan speeds, temperature
 
   Prediction: 
@@ -18,6 +16,8 @@ Todo
 
 Done
 ====
+
+  Exit if program is not run as root
 
   Deployment: make install, systemd service file, .desktop file
 
