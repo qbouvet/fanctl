@@ -3,6 +3,8 @@ package main
 import "time"
 import "flag"
 import "os"
+import "os/exec"
+import "strconv"
 
 import "logging"
 import "sensor"
@@ -29,7 +31,23 @@ func main() {
 	flag.IntVar(&hysteresis, "hyst", 	 2000, "hysteresis in milliCelsius")
 	flag.Parse()
 
-	logging.Initialize(loglevel, os.Stderr, os.Stdout)
+	logging.Initialize(loglevel, os.Stdout, os.Stdout)
+
+	output, err := exec.Command("id", "-u").Output()
+	if err!=nil {
+		logging.Err("Failed to run $ id -u")
+		os.Exit(1)
+	}
+	id, err := strconv.Atoi(string(output[:len(output)-1]))
+	if err!=nil {
+		logging.Err("Failed to run $ id -u")
+		os.Exit(1)
+	}
+	if id!=0 { 
+		logging.Err("fanctl must be run as root")
+		os.Exit(1)
+	}
+
 	logging.Info("Running with parameters:\n")
 	logging.Info("loglevel    %d", loglevel)
 	logging.Info("samplep     %d", samplep)
@@ -38,11 +56,11 @@ func main() {
 	loadConfigurationInto(sensors, curves, actuators, ctrlLoops)
 	
 	for {
-		logging.Trace("+iteration+")
+		logging.Trace("Iterations += 1")
 		for _,l := range ctrlLoops {
-			logging.Trace("  +control loop iteration+")
+			logging.Trace("Iterating control loops")
 			l.Loop()
-			time.Sleep(time.Millisecond*50)	
+			time.Sleep(time.Millisecond*20)	
 		}
 		logging.Trace("")
 		time.Sleep(time.Millisecond*time.Duration(samplep))
