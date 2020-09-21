@@ -1,32 +1,34 @@
 Todo
-====  
+====
 
-  Evaluation: separate program to monitor/log/graph fan speeds, temperature
+  Bugfix: 
+    - Histeresis check should account for actuation goroutines may not take the 
+      actuator all the way to the desired value in one iteration. 
+    - Revert temporary fix: actuate regardless of result of histeresis check
+
+  Evaluation: 
+    - Find / Write separate program to monitor/log/graph fan speeds, temperature
 
   Prediction: 
-    Monitor temperature variations during stress tests of varying intensity
-    to model temperature evolution as a function of imemdiate temperature and 
-    immediate power consumption.
+    - Monitor temperature variations during stress tests of varying intensity
+      to model temperature evolution as a function of imemdiate temperature and 
+      immediate power consumption.
 
-  Deployment: PKGBUILD for integration in pacman
-
-  Documentation: write doc in a suitable .md file
-
+  Documentation: 
+    - write doc in a suitable .md file
 
 
 Done
 ====
 
-  Exit if program is not run as root
-
-  Deployment: make install, systemd service file, .desktop file
-
-  Proper logging to avoid spamming system journal
-
-  With standardized units, use integers instead of floats
-
-  Readers/Writer provide/accept standardized units (milliCelsius, milliWatt)
-
-  Command pipeline reader interface
-
-  File reader/writer interface
+  Deployment: 
+    - PKGBUILD for integration in pacman
+    - make install, systemd service file, .desktop file
+    
+  Features: 
+    - Exit if program is not run as root
+    - Proper logging to avoid spamming system journal
+    - Use 1/1000th of integers instead of floats
+    - Readers/Writer provide/accept standardized units (milliCelsius, milliWatt)
+    - Command pipeline reader interface
+    - File reader/writer interface

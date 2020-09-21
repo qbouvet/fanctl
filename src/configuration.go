@@ -49,7 +49,7 @@ func loadConfigurationInto(
 	cpuPWM := sensor.New(
 		"cpuPWM", 
 		//reader.FromFile("/sys/devices/pci0000:00/0000:00:18.3/hwmon/hwmon0/pwm2"),
-		reader.FromFile("/sys/devices/platform/nct6775.656/hwmon/hwmon2/pwm2"),
+		reader.FromFile("/sys/devices/platform/nct6775.656/hwmon/hwmon3/pwm2"),
 		sensor.Natural,
 	)
 
@@ -68,7 +68,7 @@ func loadConfigurationInto(
 	gpuPWM := sensor.New(
 		"gpuPWM", 
 		//reader.FromFile("/sys/devices/pci0000:00/0000:00:18.3/hwmon/hwmon0/pwm1"),
-		reader.FromFile("/sys/devices/platform/nct6775.656/hwmon/hwmon2/pwm1"),
+		reader.FromFile("/sys/devices/platform/nct6775.656/hwmon/hwmon3/pwm1"),
 		sensor.Natural,
 	)
 
@@ -83,8 +83,8 @@ func loadConfigurationInto(
 		"cpuA",
 		curves["global"],
 		0, 255, 				// Full range here
-		samplep, 2, 8,		// Max speed in 10s
-		"/sys/devices/platform/nct6775.656/hwmon/hwmon2/pwm2", 
+		samplep, 2, 8,		    // Max speed in 10s
+		"/sys/devices/platform/nct6775.656/hwmon/hwmon3/pwm2", 
 		sensors["cpuPWM"],
 	)
 
@@ -92,8 +92,8 @@ func loadConfigurationInto(
 		"gpuA",
 		curves["global"],
 		0, 255, 				// Full range here
-		samplep, 2, 6, 	// Max speed in 10s
-		"/sys/devices/platform/nct6775.656/hwmon/hwmon2/pwm3", 
+		samplep, 2, 6, 	        // Max speed in 10s
+		"/sys/devices/platform/nct6775.656/hwmon/hwmon3/pwm3", 
 		sensors["gpuPWM"],
 	)
 

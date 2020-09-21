@@ -46,10 +46,11 @@ func (L *ControlLoop) Loop() {
 	// Prediction Phase
 	predT := sampledT
 	// Actuation Phase
-	if predT <= L.hystT && predT >= L.hystT-L.hysteresis {
-		logging.Debug("Hysteresis not crossed, skipping actuation\n")
-		return 
-	}
+	// This check is buggy, hysteresis should interact with actuation curves
+	//if predT <= L.hystT && predT >= L.hystT-L.hysteresis {
+	// 	logging.Debug("Hysteresis not crossed, skipping actuation\n")
+	// 	return 
+	//}
 	L.hystT = sampledT
 	L.actuator.Actuate(predT)
 }
