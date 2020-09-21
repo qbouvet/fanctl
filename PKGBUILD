@@ -2,7 +2,7 @@
 # Maintainer: Quentin Bouvet <qbouvet@outlook.com>
 pkgname="fanctl-git"
 pkgver=0.1
-pkgrel=1
+pkgrel=2
 pkgdesc="Fan control"
 arch=('any')
 url="https://github.com/qbouvet/fanctl"
@@ -10,13 +10,13 @@ license=('GPL')
 groups=()
 depends=()
 makedepends=('go') 
-provides=("${pkgname}")
-conflicts=("${pkgname}")
+provides=("${pkgname%-git}")
+conflicts=("${pkgname%-git}")
 replaces=()
 backup=()
 options=()
 install=
-source=("$pkgname-v$pkgver::https://github.com/qbouvet/fanctl/archive/v$pkgver.tar.gz")
+source=("$pkgname-v$pkgver::https://github.com/qbouvet/fanctl/archive/v${pkgver}r${pkgrel}.tar.gz")
 noextract=()
 md5sums=('SKIP')
 
@@ -37,13 +37,13 @@ md5sums=('SKIP')
 #   VERSION='VER_NUM.rREV_NUM.HASH', or a relevant subset in case VER_NUM or HASH
 #   are not available, is recommended.
 #
-pkgver() { 
-  cd "$srcdir/${pkgname}"
-  # Git, tags available
-  printf "%s" "$(git describe --long | sed 's/\([^-]*-\)g/r\1/;s/-/./g')"
-  # Git, no tags available
-  #printf "r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
-}
+#pkgver() { 
+#  cd "$srcdir/${pkgname%-git}-${pkgver}r${pkgrel}"
+#  # Git, tags available
+#  printf "%s" "$(git describe --long | sed 's/\([^-]*-\)g/r\1/;s/-/./g')"
+#  # Git, no tags available
+#  #printf "r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
+#}
 
 #
 #   Runs commands that are used to prepare sources for building, such as patching. 
@@ -61,7 +61,7 @@ pkgver() {
 #   The build() function in essence automates everything you did by hand 
 #   and compiles the software in the fakeroot build environment.
 build() {
-  cd "$srcdir/${pkgname}"
+  cd "$srcdir/${pkgname%-git}-${pkgver}r${pkgrel}"
   #./autogen.sh
   #./configure --prefix=/usr
   make
@@ -82,6 +82,6 @@ build() {
 #   filesystem, you should install them in the pkg directory under the 
 #   same directory structure.
 package() {
-  cd "$srcdir/${pkgname}"
+  cd "$srcdir/${pkgname%-git}-${pkgver}r${pkgrel}"
   make DESTDIR="$pkgdir/" install
 }
