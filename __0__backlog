@@ -1,6 +1,14 @@
 Todo
 ====
 
+  Deployment: 
+    - Makefile uses standard linux directory for binary, icons
+    - Small documentation file explains what this is, how to use
+
+  Features: 
+    - Get configuration from configuration files instead of hardcoded
+      configuration in configuration.go
+
   Bugfix: 
     - Histeresis check should account for actuation goroutines may not take the 
       actuator all the way to the desired value in one iteration. 
@@ -14,8 +22,8 @@ Todo
       to model temperature evolution as a function of imemdiate temperature and 
       immediate power consumption.
 
-  Documentation: 
-    - write doc in a suitable .md file
+  Features: 
+    - Autodetect sensors, etc...
 
 
 Done
