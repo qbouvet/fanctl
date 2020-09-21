@@ -2,6 +2,6 @@
 Name=Start Fanctl
 Comment=Fan Control daemon
 Exec=gksu /opt/fanctl/main -loglevel 1
-Icon=fanctl-fanctl
+Icon=/opt/fanctl/fanctl.png
 Terminal=true
 Type=Application
