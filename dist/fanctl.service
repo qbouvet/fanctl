@@ -1,15 +1,15 @@
 # /etc/systemd/system/fanctl.service
 
 [Unit]
-Description=fanctl at boot.
+Description=fan control service
 
 [Service]
 Type=simple
 User=root
 Group=root
-ExecStart=/opt/fanctl/main -loglevel 1
+ExecStart=/usr/bin/fanctl -loglevel 1
 Restart=always
-RestartSec=2000ms
+RestartSec=3000ms
 
 [Install]
 WantedBy=multi-user.target
