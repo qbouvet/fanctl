@@ -1,29 +1,30 @@
 builddir=.build
-binary=main
 
 build:
 	mkdir -p $(builddir)
 	cd $(builddir) \
 	  && GOPATH=$(shell pwd) go build ../src/ \
-	  && mv src $(binary)
+	  && mv src fanctl
 
 install:
-	# 	Binary, icon and .desktop
-	mkdir -p $(DESTDIR)/opt/fanctl
-	install -Dm755 $(builddir)/$(binary) $(DESTDIR)/opt/fanctl/
-	install -Dm644 misc/fanctl.png $(DESTDIR)/opt/fanctl/
-	install -Dm644 misc/fanctl.desktop $(DESTDIR)/opt/fanctl/
+	install -Dm755 $(builddir)/fanctl \
+	  $(DESTDIR)/usr/bin/fanctl
+	
+	install -Dm644 dist/fanctl.service \
+	  $(DESTDIR)/usr/lib/systemd/system/fanctl.service
 
-	# 	Systemd service
-	mkdir -p $(DESTDIR)/usr/lib/systemd/system/
-	install -Dm644 misc/fanctl.service $(DESTDIR)/usr/lib/systemd/system/
+	install -Dm644 dist/fanctl.desktop \
+	  $(DESTDIR)/usr/share/applications/fanctl.desktop
+	
+	install -D -m644 dist/fanctl.png \
+	  $(DESTDIR)/usr/share/pixmaps/fanctl.png
 
 clean: 
 	rm -rf $(builddir)
 
 uninstall: 
-	rm /usr/lib/systemd/system/fanctl.service
-	rm -rf /opt/fanctl
-
-
-# https://bbs.archlinux.org/viewtopic.php?id=250189
+	rm $(DESTDIR)/usr/bin/fanctl
+	rm $(DESTDIR)/usr/lib/systemd/system/fanctl.service
+	rm $(DESTDIR)/usr/share/applications/fanctl.desktop
+	rm $(DESTDIR)/usr/share/pixmaps/fanctl.png
+	

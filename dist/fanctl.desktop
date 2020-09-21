@@ -1,7 +1,7 @@
 [Desktop Entry]
 Name=Start Fanctl
 Comment=Fan Control daemon
-Exec=gksu /opt/fanctl/main -loglevel 1
-Icon=/opt/fanctl/fanctl.png
+Exec=/usr/bin/fanctl -loglevel 1
+Icon=/usr/share/pixmaps/fanctl.png
 Terminal=true
 Type=Application
