@@ -2,7 +2,7 @@
 # Maintainer: Quentin Bouvet <qbouvet@outlook.com>
 pkgname="fanctl-git"
 pkgver=0.1
-pkgrel=5
+pkgrel=6
 pkgdesc="Fan control"
 arch=('any')
 url="https://github.com/qbouvet/fanctl"

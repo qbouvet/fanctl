@@ -28,7 +28,7 @@ func loadConfigurationInto(
 	cpuT := sensor.New(
 		"cpuT", 
 		//reader.FromFile("/sys/devices/pci0000:00/0000:00:18.3/hwmon/hwmon0/temp1_input"),
-		reader.FromFile("/sys/class/hwmon/hwmon0/device/hwmon/hwmon0/temp1_input"),
+		reader.FromFile("/sys/class/hwmon/hwmon1/temp2_input"),
 		sensor.MilliCelsius,
 	)
 	

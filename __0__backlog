@@ -13,6 +13,11 @@ Todo
     - Histeresis check should account for actuation goroutines may not take the 
       actuator all the way to the desired value in one iteration. 
     - Revert temporary fix: actuate regardless of result of histeresis check
+    - If two consecutive identical temperatures are read, errors happen: 
+        I| cpuL sampled °C: 56250
+        I|   cpuA applies change from 131 to 131: delta=0 sign=-9223372036854775808
+        I|   cpuA achieved step rate of 1 steps.s⁻¹
+        I|   cpuA equivalent to 1 step of 2 every 1000 ms
 
   Evaluation: 
     - Find / Write separate program to monitor/log/graph fan speeds, temperature
